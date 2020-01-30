@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#function definition
+officeMode () {
+	find /Users/rajvelgovindarajan/ -name '.gitconfig' -print0 | xargs sed -i "" "s/#sproxy/proxy/g"
+	find /Users/rajvelgovindarajan/.m2 -name 'settings.xml' -print0 | xargs sed -i "" "s/<proxies><!--/<proxies><\!-- start -->/g"
+	find /Users/rajvelgovindarajan/.m2 -name 'settings.xml' -print0 | xargs sed -i "" "s/--><\/proxies>/<\!-- end --><\/proxies>/g"
+	osascript -e 'tell app "System Events" to display dialog "Changed to office mode"'
+	/usr/bin/automator startupApps.workflow
+}
+
+homeMode () {
+	find /Users/rajvelgovindarajan/ -name '.gitconfig' -print0 | xargs sed -i "" "s/proxy/#sproxy/g"
+	find /Users/rajvelgovindarajan/.m2 -name 'settings.xml' -print0 | xargs sed -i "" "s/<proxies><\!-- start -->/<proxies><\!--/g"
+	find /Users/rajvelgovindarajan/.m2 -name 'settings.xml' -print0 | xargs sed -i "" "s/<\!-- end --><\/proxies>/--><\/proxies>/g"
+	osascript -e 'tell app "System Events" to display dialog "Welcome back home Velan"'
+}
+
+#get wifi SSID
+SSID=$(/System/Library/PrivateFrameworks/Apple80211.framework/Resources/airport -I | awk -F: '/ SSID:/{print $2}' | xargs)
+
+
+if [ "$SSID" = "icorpMac" ]
+then
+	officeMode
+else
+	homeMode
+fi
